@@ -629,13 +629,27 @@ body::before {
     0 40px 100px -30px rgba(0, 0, 0, 0.55),
     0 0 0 1px rgba(255, 255, 255, 0.03) inset;
 
+  /* JS-controlled state via CSS variables:
+     --rx / --ry  : 3D tilt driven by mouse position
+     --mx / --my  : spotlight position (0–1 within card)
+     --hover      : 0 or 1, lerps the hover effects on/off */
+  --rx: 0deg;
+  --ry: 0deg;
+  --mx: 50%;
+  --my: 50%;
+  --hover: 0;
+
+  transform-style: preserve-3d;
+  perspective: 1100px;
+
   /* enter animation handled by JS via .is-active */
   opacity: 0.4;
   transform: translateY(40px) scale(0.96);
   transition:
     opacity 0.7s var(--ease-out),
     transform 0.7s var(--ease-out),
-    box-shadow 0.5s var(--ease);
+    box-shadow 0.5s var(--ease),
+    border-color 0.5s var(--ease);
 }
 .project--card.is-active {
   opacity: 1;
@@ -645,6 +659,69 @@ body::before {
   /* gentle parallax fade for the previous card while the next one slides up */
   opacity: 0.5;
   transform: translateY(-30px) scale(0.97);
+}
+
+/* ===== Project card hover interactions =====
+   Active card uses tilt + spotlight + lift. Tilt comes from JS-set CSS vars. */
+.project--card.is-active.is-hover {
+  /* lift + scale + 3D tilt (around the rotateY/X axes) */
+  transform:
+    translateY(-6px)
+    scale(1.02)
+    rotateX(var(--rx))
+    rotateY(var(--ry));
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  box-shadow:
+    0 60px 120px -30px rgba(0, 0, 0, 0.65),
+    0 0 80px -20px color-mix(in srgb, var(--accent) 35%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent) inset;
+  transition:
+    transform 0.25s var(--ease-out),
+    box-shadow 0.4s var(--ease),
+    border-color 0.4s var(--ease);
+}
+
+/* Spotlight that follows the cursor inside the card.
+   Implemented as a ::after layer so it doesn't interfere with content. */
+.project--card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    320px circle at var(--mx) var(--my),
+    color-mix(in srgb, var(--accent) 22%, transparent),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+  mix-blend-mode: screen;
+  z-index: 0;
+}
+.project--card.is-hover::after { opacity: 1; }
+
+/* Make sure card content sits above the spotlight layer */
+.project--card > .project__media,
+.project--card > .project__info { position: relative; z-index: 1; }
+
+/* When hovering the card, the project title shifts to the colorful accent gradient */
+.project--card.is-hover .project__title {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  transition: background 0.5s var(--ease);
+}
+
+/* The GitHub link gets a small "primed" treatment so it feels reactive */
+.project--card.is-hover .project__link {
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+/* Tag pills get a subtle violet edge */
+.project--card.is-hover .project__tags span {
+  border-color: color-mix(in srgb, var(--accent) 25%, var(--line));
 }
 
 /* tiny corner index badge */
@@ -823,7 +900,32 @@ body::before {
   position: relative;
   z-index: 2;
   padding: 80px 40px 60px;
+  /* extra room so the dice rain has space to play */
+  overflow: hidden;
 }
+
+/* Dice rain canvas — sits behind text but above the page background */
+.about__dice-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto; /* needs to receive mouse events for push/click */
+  z-index: 0;
+}
+.about__inner,
+.about .footer {
+  position: relative;
+  z-index: 2;
+  /* let the canvas under us still get hover events where text isn't */
+  pointer-events: none;
+}
+/* but interactive children inside the inner block must still be clickable */
+.about__inner > *,
+.about .footer * {
+  pointer-events: auto;
+}
+
 .about__inner {
   max-width: 980px;
   margin: 0 auto;

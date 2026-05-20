@@ -120,45 +120,68 @@
                   stroke-width="1"
                   stroke-dasharray="2 8" />
 
-          <!-- The die. Isometric: top, left, right faces meeting at center.
-               Centered at (240, 240). Edge length 120px. -->
+          <!-- The die. True isometric cube with three visible faces meeting
+               at the central front vertex (240, 240). All three faces share
+               that vertex, so the cube reads as a single solid object instead
+               of a top floating above two side panels.
+
+               Geometry (rhombus diamond):
+                 width  = 240 (horizontal axis)
+                 height = 140 (vertical axis)
+               Top face vertices:
+                 top    (240, 100)
+                 right  (360, 170)
+                 bottom (240, 240)   <-- central front vertex
+                 left   (120, 170)
+               Side faces drop straight down by 140 from the top rhombus. -->
           <g class="hero__dice-cube">
-            <!-- LEFT face (front-left, shows 4 pips in a square) -->
-            <path d="M120 220 L240 290 L240 430 L120 360 Z"
+            <!-- LEFT face (front-left): vertices (120,170)-(240,240)-(240,380)-(120,310)
+                 Shows 4 pips in a square. -->
+            <path d="M120 170 L240 240 L240 380 L120 310 Z"
                   fill="url(#dieLeft)" />
             <g class="hero__pip-group" fill="var(--die-pip)">
-              <circle cx="152" cy="282" r="7"  transform="translate(0 -10)" />
-              <circle cx="208" cy="315" r="7"  transform="translate(0 -10)" />
-              <circle cx="152" cy="345" r="7"  transform="translate(0 22)"  />
-              <circle cx="208" cy="378" r="7"  transform="translate(0 22)"  />
+              <circle cx="160" cy="232" r="7" />
+              <circle cx="210" cy="261" r="7" />
+              <circle cx="160" cy="299" r="7" />
+              <circle cx="210" cy="328" r="7" />
             </g>
 
-            <!-- RIGHT face (front-right, shows 2 pips diagonally) -->
-            <path d="M240 290 L360 220 L360 360 L240 430 Z"
+            <!-- RIGHT face (front-right): vertices (240,240)-(360,170)-(360,310)-(240,380)
+                 Shows 2 pips on the diagonal. -->
+            <path d="M240 240 L360 170 L360 310 L240 380 Z"
                   fill="url(#dieRight)" />
             <g class="hero__pip-group" fill="var(--die-pip)">
-              <circle cx="272" cy="310" r="7" />
-              <circle cx="328" cy="343" r="7" />
+              <circle cx="282" cy="261" r="7" />
+              <circle cx="328" cy="320" r="7" />
             </g>
 
-            <!-- TOP face (shows 5 pips in quincunx) -->
-            <path d="M240 50 L360 120 L240 190 L120 120 Z"
+            <!-- TOP face: vertices (240,100)-(360,170)-(240,240)-(120,170)
+                 Shows 5 pips in quincunx. The bottom vertex (240,240) is
+                 exactly the shared front vertex of the two side faces. -->
+            <path d="M240 100 L360 170 L240 240 L120 170 Z"
                   fill="url(#dieTop)" />
             <g class="hero__pip-group" fill="var(--die-pip)">
-              <ellipse cx="180" cy="95"  rx="7" ry="4.2" />
-              <ellipse cx="300" cy="95"  rx="7" ry="4.2" />
-              <ellipse cx="240" cy="120" rx="7" ry="4.2" />
-              <ellipse cx="180" cy="145" rx="7" ry="4.2" />
-              <ellipse cx="300" cy="145" rx="7" ry="4.2" />
+              <!-- pips are flattened ellipses to suggest the foreshortened top face -->
+              <ellipse cx="190" cy="148" rx="7" ry="4.2" />
+              <ellipse cx="290" cy="148" rx="7" ry="4.2" />
+              <ellipse cx="240" cy="170" rx="7" ry="4.2" />
+              <ellipse cx="190" cy="192" rx="7" ry="4.2" />
+              <ellipse cx="290" cy="192" rx="7" ry="4.2" />
             </g>
 
-            <!-- Crisp edge highlight along the top (purely decorative) -->
-            <path d="M120 120 L240 50 L360 120"
+            <!-- Crisp edge highlight along the back two top edges -->
+            <path d="M120 170 L240 100 L360 170"
                   fill="none"
                   stroke="var(--die-edge)"
                   stroke-width="1.5"
                   stroke-linejoin="round"
                   opacity="0.6" />
+            <!-- Front vertical seam where the three faces meet -->
+            <path d="M240 240 L240 380"
+                  fill="none"
+                  stroke="var(--die-edge)"
+                  stroke-width="1"
+                  opacity="0.35" />
           </g>
 
           <!-- Tiny floating accent particles -->
@@ -272,6 +295,9 @@
 
   <!-- ABOUT / FOOTER -->
   <section class="about" id="about">
+    <!-- Dice rain canvas: falling/floating dice you can push and click to shatter -->
+    <canvas class="about__dice-canvas" id="aboutDiceCanvas" aria-hidden="true"></canvas>
+
     <div class="about__inner">
       <p class="section-head__index">/ 02</p>
       <h2 class="about__title">
