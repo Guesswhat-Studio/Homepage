@@ -1,0 +1,14 @@
+_org.html
+_repos.html
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (for optional `npx serve` etc.)
+node_modules/

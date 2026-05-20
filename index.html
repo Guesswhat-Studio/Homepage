@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Guesswhat Studio — We craft curious things." />
+  <title>Guesswhat Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="./assets/studio-avatar.png" />
+  <link rel="apple-touch-icon" href="./assets/studio-avatar.png" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <!-- Animated background canvas -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Cursor follower -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- Top navigation -->
+  <header class="nav">
+    <div class="nav__inner">
+      <a href="#top" class="nav__logo">
+        <img src="./assets/studio-avatar.png" alt="" class="nav__logo-img" />
+        GUESSWHAT<span class="nav__logo-accent">/</span>STUDIO
+      </a>
+      <nav class="nav__links">
+        <a href="#work">Work</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/Guesswhat-Studio" target="_blank" rel="noopener">GitHub ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="hero__bg-grid"></div>
+
+    <div class="hero__content">
+      <p class="hero__eyebrow"><span class="hero__eyebrow-line"></span> Independent Creative Studio</p>
+      <h1 class="hero__title" aria-label="Guesswhat Studio">
+        <span class="hero__title-line hero__title-line--top">
+          <span class="hero__title-word">GUESSWHAT</span>
+        </span>
+        <span class="hero__title-line hero__title-line--bottom">
+          <span class="hero__title-word hero__title-word--outline" data-text="STUDIO">STUDIO</span>
+        </span>
+      </h1>
+      <p class="hero__sub">
+        We design, build, and break things on the internet — exploring the strange edges between code, art, and play.
+      </p>
+
+      <div class="hero__scroll">
+        <span>SCROLL</span>
+        <div class="hero__scroll-line"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section class="work" id="work">
+    <div class="section-head">
+      <p class="section-head__index">/ 01</p>
+      <h2 class="section-head__title">Selected Work</h2>
+      <p class="section-head__desc">
+        A few of the things we've been quietly tinkering with.
+      </p>
+    </div>
+
+    <div class="projects">
+      <!-- Project 1 — Calabash -->
+      <article class="project" data-reveal>
+        <div class="project__media tilt">
+          <div class="project__media-inner">
+            <img class="project__img" src="./assets/calabash.png" alt="Calabash repository preview" loading="lazy" />
+            <div class="project__shine"></div>
+          </div>
+        </div>
+        <div class="project__info">
+          <p class="project__num">01 — TypeScript · MIT</p>
+          <h3 class="project__title">Calabash</h3>
+          <p class="project__tags">
+            <span>Web App</span><span>Reading Tool</span><span>Mystery Fiction</span>
+          </p>
+          <p class="project__desc">
+            A spoiler-safe case board for mystery and detective fiction readers. Track characters, clues, aliases, relationships, and theories as you read — without the app ever giving away what comes next.
+          </p>
+          <a class="project__link" href="https://github.com/Guesswhat-Studio/Calabash" target="_blank" rel="noopener">
+            <span>View on GitHub</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M11 3H4M11 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- Project 2 — Linnet -->
+      <article class="project project--reverse" data-reveal>
+        <div class="project__media tilt">
+          <div class="project__media-inner">
+            <img class="project__img" src="./assets/linnet.gif" alt="Linnet repository preview" loading="lazy" />
+            <div class="project__shine"></div>
+          </div>
+        </div>
+        <div class="project__info">
+          <p class="project__num">02 — Astro · Open Source</p>
+          <h3 class="project__title">Linnet</h3>
+          <p class="project__tags">
+            <span>AI</span><span>Daily Briefing</span><span>Astro</span>
+          </p>
+          <p class="project__desc">
+            Your personal AI morning briefing. Linnet quietly gathers arXiv papers, Hacker News threads, and GitHub trends overnight — and a curated digest is waiting for you the moment you wake up.
+          </p>
+          <a class="project__link" href="https://github.com/Guesswhat-Studio/Linnet" target="_blank" rel="noopener">
+            <span>View on GitHub</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M11 3H4M11 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- Project 3 — Skills-as-Docs -->
+      <article class="project" data-reveal>
+        <div class="project__media tilt">
+          <div class="project__media-inner">
+            <img class="project__img" src="./assets/agentSkill.svg" alt="Skills-as-Docs repository preview" loading="lazy" />
+            <div class="project__shine"></div>
+          </div>
+        </div>
+        <div class="project__info">
+          <p class="project__num">03 — TypeScript · Open Source</p>
+          <h3 class="project__title">Skills-as-Docs</h3>
+          <p class="project__tags">
+            <span>Developer Tool</span><span>AI Agents</span><span>Documentation</span>
+          </p>
+          <p class="project__desc">
+            An experiment in treating agent skills as plain, version-controlled documentation. Write a markdown file, commit it, and your tools learn a new trick — no plugin system, no glue code, just docs.
+          </p>
+          <a class="project__link" href="https://github.com/Guesswhat-Studio/Skills-as-Docs" target="_blank" rel="noopener">
+            <span>View on GitHub</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M11 3H4M11 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ABOUT / FOOTER -->
+  <section class="about" id="about">
+    <div class="about__inner">
+      <p class="section-head__index">/ 02</p>
+      <h2 class="about__title">
+        We are a small studio<br/>
+        making <em>curious</em> things.
+      </h2>
+      <p class="about__desc">
+        Guesswhat Studio is a small, independent collective of designers and engineers exploring the strange edges of software — reading tools, AI companions, and developer experiments. We follow our curiosity, build the things we wish existed, and quietly open-source what we can.
+      </p>
+      <a class="about__cta" href="mailto:hello@guesswhat.studio">
+        <span>Say hello</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M13 3H5M13 3V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+
+    <footer class="footer">
+      <div class="footer__row">
+        <span>© 2025 Guesswhat Studio</span>
+        <span>Made with curiosity</span>
+        <a href="https://github.com/Guesswhat-Studio" target="_blank" rel="noopener">github.com/Guesswhat-Studio</a>
+      </div>
+    </footer>
+  </section>
+
+  <!-- Smooth scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
