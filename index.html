@@ -4,7 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Guesswhat Studio — We craft curious things." />
+  <meta name="color-scheme" content="dark light" />
   <title>Guesswhat Studio</title>
+  <!-- Apply saved theme before any paint to avoid a flash of wrong theme -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('gw-theme');
+        var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        var theme = saved || (prefersLight ? 'light' : 'dark');
+        if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+      } catch (e) {}
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
@@ -30,6 +42,22 @@
         <a href="#work">Work</a>
         <a href="#about">About</a>
         <a href="https://github.com/Guesswhat-Studio" target="_blank" rel="noopener">GitHub ↗</a>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme" title="Toggle theme">
+          <span class="theme-toggle__track">
+            <!-- sun -->
+            <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" fill="currentColor"/>
+              <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+              </g>
+            </svg>
+            <!-- moon -->
+            <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="theme-toggle__indicator" aria-hidden="true"></span>
+        </button>
       </nav>
     </div>
   </header>
@@ -38,109 +66,207 @@
   <section class="hero" id="top">
     <div class="hero__bg-grid"></div>
 
-    <div class="hero__content">
-      <p class="hero__eyebrow"><span class="hero__eyebrow-line"></span> Independent Creative Studio</p>
-      <h1 class="hero__title" aria-label="Guesswhat Studio">
-        <span class="hero__title-line hero__title-line--top">
-          <span class="hero__title-word">GUESSWHAT</span>
-        </span>
-        <span class="hero__title-line hero__title-line--bottom">
-          <span class="hero__title-word hero__title-word--outline" data-text="STUDIO">STUDIO</span>
-        </span>
-      </h1>
-      <p class="hero__sub">
-        We design, build, and break things on the internet — exploring the strange edges between code, art, and play.
-      </p>
-
-      <div class="hero__scroll">
-        <span>SCROLL</span>
-        <div class="hero__scroll-line"></div>
+    <div class="hero__content hero__content--split">
+      <!-- LEFT: text -->
+      <div class="hero__text">
+        <p class="hero__eyebrow"><span class="hero__eyebrow-line"></span> Independent Creative Studio</p>
+        <h1 class="hero__title" aria-label="Guesswhat Studio">
+          <span class="hero__title-line hero__title-line--top">
+            <span class="hero__title-word">GUESSWHAT</span>
+          </span>
+          <span class="hero__title-line hero__title-line--bottom">
+            <span class="hero__title-word hero__title-word--outline" data-text="STUDIO">STUDIO</span>
+          </span>
+        </h1>
+        <p class="hero__sub">
+          We design, build, and break things on the internet — exploring the strange edges between code, art, and play.
+        </p>
       </div>
+
+      <!-- RIGHT: a single, modern isometric die with a soft glow.
+           No crown, no studio logo — a clean, abstract emblem. -->
+      <div class="hero__art" aria-hidden="true">
+        <svg class="hero__dice" viewBox="0 0 480 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Soft radial glow behind the die -->
+            <radialGradient id="dieHalo" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"  stop-color="var(--die-halo-from)" />
+              <stop offset="100%" stop-color="var(--die-halo-to)" />
+            </radialGradient>
+            <!-- Top face: lightest -->
+            <linearGradient id="dieTop" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="var(--die-top-1)" />
+              <stop offset="100%" stop-color="var(--die-top-2)" />
+            </linearGradient>
+            <!-- Front-right face: mid -->
+            <linearGradient id="dieRight" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="var(--die-right-1)" />
+              <stop offset="100%" stop-color="var(--die-right-2)" />
+            </linearGradient>
+            <!-- Front-left face: darkest -->
+            <linearGradient id="dieLeft" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="var(--die-left-1)" />
+              <stop offset="100%" stop-color="var(--die-left-2)" />
+            </linearGradient>
+          </defs>
+
+          <!-- Halo glow -->
+          <circle class="hero__dice-halo" cx="240" cy="240" r="230" fill="url(#dieHalo)" />
+
+          <!-- Decorative orbit ring -->
+          <circle class="hero__dice-ring" cx="240" cy="240" r="180"
+                  fill="none"
+                  stroke="var(--die-ring)"
+                  stroke-width="1"
+                  stroke-dasharray="2 8" />
+
+          <!-- The die. Isometric: top, left, right faces meeting at center.
+               Centered at (240, 240). Edge length 120px. -->
+          <g class="hero__dice-cube">
+            <!-- LEFT face (front-left, shows 4 pips in a square) -->
+            <path d="M120 220 L240 290 L240 430 L120 360 Z"
+                  fill="url(#dieLeft)" />
+            <g class="hero__pip-group" fill="var(--die-pip)">
+              <circle cx="152" cy="282" r="7"  transform="translate(0 -10)" />
+              <circle cx="208" cy="315" r="7"  transform="translate(0 -10)" />
+              <circle cx="152" cy="345" r="7"  transform="translate(0 22)"  />
+              <circle cx="208" cy="378" r="7"  transform="translate(0 22)"  />
+            </g>
+
+            <!-- RIGHT face (front-right, shows 2 pips diagonally) -->
+            <path d="M240 290 L360 220 L360 360 L240 430 Z"
+                  fill="url(#dieRight)" />
+            <g class="hero__pip-group" fill="var(--die-pip)">
+              <circle cx="272" cy="310" r="7" />
+              <circle cx="328" cy="343" r="7" />
+            </g>
+
+            <!-- TOP face (shows 5 pips in quincunx) -->
+            <path d="M240 50 L360 120 L240 190 L120 120 Z"
+                  fill="url(#dieTop)" />
+            <g class="hero__pip-group" fill="var(--die-pip)">
+              <ellipse cx="180" cy="95"  rx="7" ry="4.2" />
+              <ellipse cx="300" cy="95"  rx="7" ry="4.2" />
+              <ellipse cx="240" cy="120" rx="7" ry="4.2" />
+              <ellipse cx="180" cy="145" rx="7" ry="4.2" />
+              <ellipse cx="300" cy="145" rx="7" ry="4.2" />
+            </g>
+
+            <!-- Crisp edge highlight along the top (purely decorative) -->
+            <path d="M120 120 L240 50 L360 120"
+                  fill="none"
+                  stroke="var(--die-edge)"
+                  stroke-width="1.5"
+                  stroke-linejoin="round"
+                  opacity="0.6" />
+          </g>
+
+          <!-- Tiny floating accent particles -->
+          <g class="hero__dice-sparks" fill="var(--die-spark)">
+            <circle class="hero__spark hero__spark--a" cx="80"  cy="160" r="3" />
+            <circle class="hero__spark hero__spark--b" cx="410" cy="110" r="4" />
+            <circle class="hero__spark hero__spark--c" cx="420" cy="330" r="3" />
+            <circle class="hero__spark hero__spark--d" cx="70"  cy="360" r="4" />
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="hero__scroll">
+      <span>SCROLL</span>
+      <div class="hero__scroll-line"></div>
     </div>
   </section>
 
-  <!-- WORK -->
+  <!-- WORK — stacking sticky cards -->
   <section class="work" id="work">
     <div class="section-head">
       <p class="section-head__index">/ 01</p>
       <h2 class="section-head__title">Selected Work</h2>
       <p class="section-head__desc">
-        A few of the things we've been quietly tinkering with.
+        A few of the things we've been quietly tinkering with. Scroll to flip through.
       </p>
     </div>
 
-    <div class="projects">
-      <!-- Project 1 — Calabash -->
-      <article class="project" data-reveal>
-        <div class="project__media tilt">
-          <div class="project__media-inner">
-            <img class="project__img" src="./assets/calabash.png" alt="Calabash repository preview" loading="lazy" />
-            <div class="project__shine"></div>
-          </div>
-        </div>
-        <div class="project__info">
-          <p class="project__num">01 — TypeScript · MIT</p>
-          <h3 class="project__title">Calabash</h3>
-          <p class="project__tags">
-            <span>Web App</span><span>Reading Tool</span><span>Mystery Fiction</span>
-          </p>
-          <p class="project__desc">
-            A spoiler-safe case board for mystery and detective fiction readers. Track characters, clues, aliases, relationships, and theories as you read — without the app ever giving away what comes next.
-          </p>
-          <a class="project__link" href="https://github.com/Guesswhat-Studio/Calabash" target="_blank" rel="noopener">
-            <span>View on GitHub</span>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M11 3H4M11 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-        </div>
-      </article>
+    <!-- Each .project-stage is a full-viewport scroll slot.
+         Inside it, the .project card is sticky, so the next card slides up over it. -->
+    <div class="projects projects--stack">
 
-      <!-- Project 2 — Linnet -->
-      <article class="project project--reverse" data-reveal>
-        <div class="project__media tilt">
-          <div class="project__media-inner">
-            <img class="project__img" src="./assets/linnet.gif" alt="Linnet repository preview" loading="lazy" />
-            <div class="project__shine"></div>
+      <div class="project-stage">
+        <article class="project project--card" data-project-index="1">
+          <div class="project__media tilt">
+            <div class="project__media-inner">
+              <img class="project__img" src="./assets/calabash.png" alt="Calabash repository preview" loading="lazy" />
+              <div class="project__shine"></div>
+            </div>
           </div>
-        </div>
-        <div class="project__info">
-          <p class="project__num">02 — Astro · Open Source</p>
-          <h3 class="project__title">Linnet</h3>
-          <p class="project__tags">
-            <span>AI</span><span>Daily Briefing</span><span>Astro</span>
-          </p>
-          <p class="project__desc">
-            Your personal AI morning briefing. Linnet quietly gathers arXiv papers, Hacker News threads, and GitHub trends overnight — and a curated digest is waiting for you the moment you wake up.
-          </p>
-          <a class="project__link" href="https://github.com/Guesswhat-Studio/Linnet" target="_blank" rel="noopener">
-            <span>View on GitHub</span>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M11 3H4M11 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-        </div>
-      </article>
+          <div class="project__info">
+            <p class="project__num">01 — TypeScript · MIT</p>
+            <h3 class="project__title">Calabash</h3>
+            <p class="project__tags">
+              <span>Web App</span><span>Reading Tool</span><span>Mystery Fiction</span>
+            </p>
+            <p class="project__desc">
+              A spoiler-safe case board for mystery and detective fiction readers. Track characters, clues, aliases, relationships, and theories as you read — without the app ever giving away what comes next.
+            </p>
+            <a class="project__link" href="https://github.com/Guesswhat-Studio/Calabash" target="_blank" rel="noopener">
+              <span>View on GitHub</span>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M11 3H4M11 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </article>
+      </div>
 
-      <!-- Project 3 — Skills-as-Docs -->
-      <article class="project" data-reveal>
-        <div class="project__media tilt">
-          <div class="project__media-inner">
-            <img class="project__img" src="./assets/agentSkill.svg" alt="Skills-as-Docs repository preview" loading="lazy" />
-            <div class="project__shine"></div>
+      <div class="project-stage">
+        <article class="project project--card" data-project-index="2">
+          <div class="project__media tilt">
+            <div class="project__media-inner">
+              <img class="project__img" src="./assets/linnet.gif" alt="Linnet repository preview" loading="lazy" />
+              <div class="project__shine"></div>
+            </div>
           </div>
-        </div>
-        <div class="project__info">
-          <p class="project__num">03 — TypeScript · Open Source</p>
-          <h3 class="project__title">Skills-as-Docs</h3>
-          <p class="project__tags">
-            <span>Developer Tool</span><span>AI Agents</span><span>Documentation</span>
-          </p>
-          <p class="project__desc">
-            An experiment in treating agent skills as plain, version-controlled documentation. Write a markdown file, commit it, and your tools learn a new trick — no plugin system, no glue code, just docs.
-          </p>
-          <a class="project__link" href="https://github.com/Guesswhat-Studio/Skills-as-Docs" target="_blank" rel="noopener">
-            <span>View on GitHub</span>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M11 3H4M11 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-        </div>
-      </article>
+          <div class="project__info">
+            <p class="project__num">02 — Astro · Open Source</p>
+            <h3 class="project__title">Linnet</h3>
+            <p class="project__tags">
+              <span>AI</span><span>Daily Briefing</span><span>Astro</span>
+            </p>
+            <p class="project__desc">
+              Your personal AI morning briefing. Linnet quietly gathers arXiv papers, Hacker News threads, and GitHub trends overnight — and a curated digest is waiting for you the moment you wake up.
+            </p>
+            <a class="project__link" href="https://github.com/Guesswhat-Studio/Linnet" target="_blank" rel="noopener">
+              <span>View on GitHub</span>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M11 3H4M11 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </article>
+      </div>
+
+      <div class="project-stage">
+        <article class="project project--card" data-project-index="3">
+          <div class="project__media tilt">
+            <div class="project__media-inner">
+              <img class="project__img" src="./assets/agentSkill.svg" alt="Skills-as-Docs repository preview" loading="lazy" />
+              <div class="project__shine"></div>
+            </div>
+          </div>
+          <div class="project__info">
+            <p class="project__num">03 — TypeScript · Open Source</p>
+            <h3 class="project__title">Skills-as-Docs</h3>
+            <p class="project__tags">
+              <span>Developer Tool</span><span>AI Agents</span><span>Documentation</span>
+            </p>
+            <p class="project__desc">
+              An experiment in treating agent skills as plain, version-controlled documentation. Write a markdown file, commit it, and your tools learn a new trick — no plugin system, no glue code, just docs.
+            </p>
+            <a class="project__link" href="https://github.com/Guesswhat-Studio/Skills-as-Docs" target="_blank" rel="noopener">
+              <span>View on GitHub</span>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 11L11 3M11 3H4M11 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+        </article>
+      </div>
+
     </div>
   </section>
 

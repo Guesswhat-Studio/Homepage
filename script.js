@@ -60,45 +60,95 @@
   }
   animateCursor();
 
-  document.querySelectorAll('a, button, .project__media').forEach((el) => {
+  document.querySelectorAll('a, button, .project--card').forEach((el) => {
     el.addEventListener('mouseenter', () => cursor && cursor.classList.add('is-hover'));
     el.addEventListener('mouseleave', () => cursor && cursor.classList.remove('is-hover'));
   });
 
-  /* ---------- Reveal on scroll ---------- */
-  const revealEls = document.querySelectorAll('[data-reveal]');
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          io.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.18, rootMargin: '0px 0px -80px 0px' }
-  );
-  revealEls.forEach((el) => io.observe(el));
+  /* ---------- Stacking project cards ----------
+     Each .project-stage owns one viewport's worth of scroll budget.
+     We pick the stage whose center is closest to the viewport center
+     and mark its card .is-active; previous cards get .is-leaving. */
+  const cards = Array.from(document.querySelectorAll('.project--card'));
+  const stages = Array.from(document.querySelectorAll('.project-stage'));
 
-  /* ---------- 3D tilt on project cards ---------- */
+  function updateActiveCard() {
+    if (!stages.length) return;
+    const vh = window.innerHeight;
+    const center = vh * 0.5;
+    let bestIdx = 0;
+    let bestDist = Infinity;
+    stages.forEach((stage, i) => {
+      const rect = stage.getBoundingClientRect();
+      const stageCenter = rect.top + rect.height * 0.5;
+      const dist = Math.abs(stageCenter - center);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestIdx = i;
+      }
+    });
+    cards.forEach((card, i) => {
+      card.classList.toggle('is-active', i === bestIdx);
+      card.classList.toggle('is-leaving', i < bestIdx);
+    });
+  }
+  updateActiveCard();
+  lenis.on('scroll', updateActiveCard);
+  window.addEventListener('resize', updateActiveCard);
+
+  /* ---------- Hero dice: subtle mouse parallax ---------- */
+  const heroArt = document.querySelector('.hero__art');
+  const heroDice = document.querySelector('.hero__dice');
+  if (heroArt && heroDice) {
+    heroArt.addEventListener('mousemove', (e) => {
+      const rect = heroArt.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width  - 0.5;
+      const py = (e.clientY - rect.top)  / rect.height - 0.5;
+      // CSS keyframes already read --rx / --ry on .hero__dice,
+      // so we just update the variables and let CSS compose the transform.
+      heroDice.style.setProperty('--ry', (px * 14).toFixed(2) + 'deg');
+      heroDice.style.setProperty('--rx', (-py * 10).toFixed(2) + 'deg');
+    });
+    heroArt.addEventListener('mouseleave', () => {
+      heroDice.style.setProperty('--rx', '0deg');
+      heroDice.style.setProperty('--ry', '0deg');
+    });
+  }
+
+  /* ---------- Reveal on scroll (used for any [data-reveal] elements) ---------- */
+  const revealEls = document.querySelectorAll('[data-reveal]');
+  if (revealEls.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.18, rootMargin: '0px 0px -80px 0px' }
+    );
+    revealEls.forEach((el) => io.observe(el));
+  }
+
+  /* ---------- 3D tilt on legacy media elements (.tilt) ---------- */
   const tilts = document.querySelectorAll('.tilt');
   tilts.forEach((card) => {
     const inner = card.querySelector('.project__media-inner');
     let rect = null;
 
-    const onEnter = () => {
-      rect = card.getBoundingClientRect();
-    };
+    const onEnter = () => { rect = card.getBoundingClientRect(); };
     const onMove = (e) => {
       if (!rect) rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       const px = x / rect.width - 0.5;
       const py = y / rect.height - 0.5;
-      const rotY = px * 14;
-      const rotX = -py * 10;
+      const rotY = px * 8;
+      const rotX = -py * 6;
       card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(0)`;
-      if (inner) inner.style.transform = `translate(${px * 10}px, ${py * 10}px)`;
+      if (inner) inner.style.transform = `translate(${px * 6}px, ${py * 6}px)`;
     };
     const onLeave = () => {
       rect = null;
@@ -110,6 +160,36 @@
     card.addEventListener('mousemove', onMove);
     card.addEventListener('mouseleave', onLeave);
   });
+
+  /* ---------- Theme toggle ---------- */
+  const themeBtn = document.getElementById('themeToggle');
+  function applyTheme(theme) {
+    if (theme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+    try { localStorage.setItem('gw-theme', theme); } catch (e) {}
+  }
+  function currentTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  }
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+      applyTheme(currentTheme() === 'light' ? 'dark' : 'light');
+    });
+  }
+  /* If user has not made an explicit choice, follow system changes live */
+  if (window.matchMedia) {
+    const mq = window.matchMedia('(prefers-color-scheme: light)');
+    if (mq.addEventListener) {
+      mq.addEventListener('change', (e) => {
+        let saved = null;
+        try { saved = localStorage.getItem('gw-theme'); } catch (err) {}
+        if (!saved) applyTheme(e.matches ? 'light' : 'dark');
+      });
+    }
+  }
 
   /* ---------- Animated background (particle network) ---------- */
   const canvas = document.getElementById('bg-canvas');
@@ -158,14 +238,29 @@
     mouse.y = -9999;
   });
 
+  /* Read theme-driven particle colors live from CSS custom props,
+     so dark and light modes share the same animation seamlessly. */
+  function getThemeColors() {
+    const cs = getComputedStyle(document.documentElement);
+    return {
+      base: (cs.getPropertyValue('--particle-base').trim() || '180, 180, 220'),
+      accent: (cs.getPropertyValue('--particle-accent').trim() || '201, 255, 90'),
+      glow: (cs.getPropertyValue('--particle-mouse-glow').trim() || '106, 92, 255'),
+    };
+  }
+  let themeColors = getThemeColors();
+  /* re-read when theme attribute changes */
+  const themeMo = new MutationObserver(() => { themeColors = getThemeColors(); });
+  themeMo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
   function tick() {
     ctx.clearRect(0, 0, W, H);
 
     // soft glow under mouse
     if (mouse.x > -1000) {
       const grd = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 220);
-      grd.addColorStop(0, 'rgba(106, 92, 255, 0.12)');
-      grd.addColorStop(1, 'rgba(106, 92, 255, 0)');
+      grd.addColorStop(0, `rgba(${themeColors.glow}, 0.12)`);
+      grd.addColorStop(1, `rgba(${themeColors.glow}, 0)`);
       ctx.fillStyle = grd;
       ctx.fillRect(0, 0, W, H);
     }
@@ -197,8 +292,8 @@
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fillStyle =
         p.hue === 'accent'
-          ? 'rgba(201, 255, 90, 0.7)'
-          : 'rgba(180, 180, 220, 0.55)';
+          ? `rgba(${themeColors.accent}, 0.7)`
+          : `rgba(${themeColors.base}, 0.55)`;
       ctx.fill();
     }
 
@@ -213,7 +308,7 @@
         const d2 = dx * dx + dy * dy;
         if (d2 < maxDist * maxDist) {
           const alpha = (1 - Math.sqrt(d2) / maxDist) * 0.25;
-          ctx.strokeStyle = `rgba(180, 180, 220, ${alpha})`;
+          ctx.strokeStyle = `rgba(${themeColors.base}, ${alpha})`;
           ctx.lineWidth = 0.6;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);

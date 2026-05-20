@@ -3,20 +3,80 @@
    ========================================= */
 
 :root {
+  /* ---------- DARK THEME (default) ---------- */
   --bg: #07070a;
   --bg-soft: #0c0c11;
   --fg: #ececf1;
   --fg-dim: #8a8a96;
   --fg-mute: #5a5a66;
-  --accent: #c9ff5a;       /* signature lime */
-  --accent-2: #6a5cff;     /* deep violet */
-  --accent-3: #ff5cae;     /* magenta */
+
+  /* No more lime: deep periwinkle accent reads cleaner against the dark canvas */
+  --accent: #8b7cff;       /* signature periwinkle */
+  --accent-2: #5a4dff;     /* deeper violet */
+  --accent-3: #ff5cae;     /* magenta highlight */
+  --accent-ink: #07070a;   /* foreground color used on top of --accent buttons */
+
   --line: rgba(255, 255, 255, 0.08);
   --glass: rgba(255, 255, 255, 0.03);
   --glass-strong: rgba(255, 255, 255, 0.06);
+
+  /* Theme-driven decorations */
+  --hero-glow-1: rgba(139, 124, 255, 0.14);
+  --hero-glow-2: rgba(255, 92, 174, 0.05);
+  --nav-scrolled-bg: rgba(7, 7, 10, 0.6);
+  --media-letterbox: linear-gradient(135deg, rgba(20, 18, 26, 0.85), rgba(10, 12, 18, 0.85));
+  --title-grad-from: #ffffff;
+  --title-grad-to: #b6b6c4;
+  --outline-stroke: rgba(255, 255, 255, 0.55);
+
+  /* Particle network colors (read by JS) — violet family, no green */
+  --particle-base: 170, 165, 210;
+  --particle-accent: 139, 124, 255;
+  --particle-mouse-glow: 139, 124, 255;
+
+  /* Cursor follower — theme-aware, no blend modes (cleaner colors) */
+  --cursor-ring: #8b7cff;       /* outer ring color, matches accent */
+  --cursor-dot: rgba(255, 255, 255, 0.95);  /* inner dot */
+  --cursor-hover-fill: rgba(139, 124, 255, 0.22); /* hover state fill */
+
   --radius: 18px;
   --ease: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- LIGHT THEME ---------- */
+:root[data-theme="light"] {
+  --bg: #f6f5f0;            /* warm off-white, matches the artwork tone */
+  --bg-soft: #efece4;
+  --fg: #15131a;
+  --fg-dim: #4a4754;
+  --fg-mute: #8a8694;
+
+  --accent: #5a4dff;        /* same violet family, slightly darker for light bg */
+  --accent-2: #8b7cff;
+  --accent-3: #ff5cae;
+  --accent-ink: #ffffff;
+
+  --line: rgba(20, 18, 26, 0.10);
+  --glass: rgba(255, 255, 255, 0.55);
+  --glass-strong: rgba(255, 255, 255, 0.75);
+
+  --hero-glow-1: rgba(90, 77, 255, 0.10);
+  --hero-glow-2: rgba(255, 92, 174, 0.06);
+  --nav-scrolled-bg: rgba(246, 245, 240, 0.75);
+  --media-letterbox: linear-gradient(135deg, rgba(255, 252, 244, 0.95), rgba(230, 226, 216, 0.95));
+  --title-grad-from: #1a1722;
+  --title-grad-to: #5a5266;
+  --outline-stroke: rgba(20, 18, 26, 0.55);
+
+  --particle-base: 80, 70, 110;
+  --particle-accent: 90, 77, 255;
+  --particle-mouse-glow: 255, 92, 174;
+
+  /* Light theme cursor: deeper violet ring with a dark dot for contrast */
+  --cursor-ring: #5a4dff;
+  --cursor-dot: rgba(20, 18, 26, 0.9);
+  --cursor-hover-fill: rgba(90, 77, 255, 0.20);
 }
 
 * {
@@ -33,6 +93,8 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  /* smooth theme transition */
+  transition: background-color 0.5s var(--ease), color 0.5s var(--ease);
 }
 
 body {
@@ -76,29 +138,59 @@ body::before {
   z-index: 1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at top, rgba(106, 92, 255, 0.12), transparent 55%),
-    radial-gradient(ellipse at bottom, rgba(201, 255, 90, 0.06), transparent 60%);
+    radial-gradient(ellipse at top, var(--hero-glow-1), transparent 55%),
+    radial-gradient(ellipse at bottom, var(--hero-glow-2), transparent 60%);
+  transition: background 0.5s var(--ease);
 }
 
-/* ===== Cursor follower ===== */
+/* ===== Cursor follower =====
+   Two-layer cursor: a violet outer ring + a small inner dot.
+   Both colors come from theme variables, so the cursor stays purple
+   in both dark and light modes (no green, no gold weirdness).
+   The inner dot is rendered as a ::after pseudo-element. */
 .cursor-glow {
   position: fixed;
   top: 0;
   left: 0;
-  width: 22px;
-  height: 22px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: var(--accent);
-  mix-blend-mode: difference;
+  background: transparent;
+  border: 1.5px solid var(--cursor-ring);
   transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 9999;
-  transition: width 0.25s var(--ease), height 0.25s var(--ease), background 0.25s var(--ease);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--cursor-ring) 30%, transparent);
+  transition:
+    width 0.3s var(--ease),
+    height 0.3s var(--ease),
+    background 0.3s var(--ease),
+    border-color 0.3s var(--ease),
+    border-width 0.3s var(--ease);
+}
+.cursor-glow::after {
+  /* Inner dot — sits at the exact mouse position */
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cursor-dot);
+  transform: translate(-50%, -50%);
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
 }
 .cursor-glow.is-hover {
   width: 60px;
   height: 60px;
-  background: var(--accent);
+  background: var(--cursor-hover-fill);
+  border-width: 1px;
+}
+.cursor-glow.is-hover::after {
+  /* Dot fades when hovering interactive elements */
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.4);
 }
 
 @media (max-width: 768px) {
@@ -122,7 +214,7 @@ body::before {
   transition: backdrop-filter 0.3s var(--ease), background 0.3s var(--ease);
 }
 .nav.is-scrolled {
-  background: rgba(7, 7, 10, 0.6);
+  background: var(--nav-scrolled-bg);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
@@ -159,6 +251,7 @@ body::before {
 
 .nav__links {
   display: flex;
+  align-items: center;
   gap: 32px;
   font-size: 14px;
   font-weight: 500;
@@ -196,7 +289,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 120px 24px 80px;
+  padding: 120px 24px 100px;
   z-index: 2;
   overflow: hidden; /* safety net: never let the hero leak horizontally */
 }
@@ -225,6 +318,37 @@ body::before {
   width: 100%;
 }
 
+/* Two-column layout: text on the left, dice emblem on the right */
+.hero__content--split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: center;
+  gap: 40px;
+  text-align: left;
+  max-width: 1280px;
+}
+.hero__text {
+  min-width: 0;
+  max-width: 640px;
+}
+.hero__art {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .hero__content--split {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 16px;
+  }
+  .hero__text { margin: 0 auto; }
+  .hero__art { order: -1; max-width: 300px; margin: 0 auto; }
+}
+
 .hero__eyebrow {
   display: inline-flex;
   align-items: center;
@@ -247,13 +371,12 @@ body::before {
 
 /* ===== HERO TITLE =====
    Bebas Neue is a tall, narrow display face — "GUESSWHAT" looks elegant
-   and never overflows. STUDIO sits centered below as a subtitle (a far
-   better look than forcing both words to the same width).
+   and never overflows. STUDIO sits below as a wide-tracked subtitle.
 =================================== */
 .hero__title {
   display: block;
-  text-align: center;
-  margin: 0 auto 40px;
+  text-align: left;
+  margin: 0 0 32px;
   line-height: 0.92;
 }
 .hero__title-line {
@@ -273,9 +396,9 @@ body::before {
 .hero__title-line--top .hero__title-word {
   font-family: 'Bebas Neue', 'Syne', sans-serif;
   font-weight: 400;
-  font-size: clamp(72px, 17vw, 260px);
+  font-size: clamp(64px, 11vw, 168px);
   letter-spacing: 0.02em;
-  background: linear-gradient(180deg, #ffffff 0%, #b6b6c4 100%);
+  background: linear-gradient(180deg, var(--title-grad-from) 0%, var(--title-grad-to) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -288,13 +411,18 @@ body::before {
 .hero__title-line--bottom .hero__title-word {
   font-family: 'Bebas Neue', 'Syne', sans-serif;
   font-weight: 400;
-  font-size: clamp(28px, 6.4vw, 96px);
-  letter-spacing: 0.55em;        /* spreads STUDIO out — feels intentional, balances the word above */
-  padding-left: 0.55em;          /* compensate trailing letter-spacing so it stays optically centered */
+  font-size: clamp(24px, 4.4vw, 64px);
+  letter-spacing: 0.55em;
+  padding-left: 0.55em;
   color: transparent;
-  -webkit-text-stroke: 1.2px rgba(255, 255, 255, 0.55);
+  -webkit-text-stroke: 1.2px var(--outline-stroke);
   animation-delay: 0.45s;
 }
+@media (max-width: 900px) {
+  .hero__title { text-align: center; }
+}
+/* The outline STUDIO word also gets a colorful fill swap on hover.
+   Kept as an additional reveal beneath the new GUESSWHAT shimmer below. */
 .hero__title-word--outline::before {
   content: attr(data-text);
   position: absolute;
@@ -311,6 +439,53 @@ body::before {
 }
 .hero__title:hover .hero__title-word--outline::before { opacity: 1; }
 
+/* =========================================
+   GUESSWHAT hover interaction
+   On hover, the big word: (1) swaps its silver gradient for a colorful
+   accent gradient that animates left-to-right (“shimmer”), (2) gains a
+   soft purple glow, and (3) gives a tiny squeeze for a tactile feel.
+   ========================================= */
+.hero__title-line--top .hero__title-word {
+  background-size: 100% 100%;
+  background-position: 0 0;
+  cursor: pointer;
+  transition:
+    transform 0.5s var(--ease-out),
+    filter 0.5s var(--ease-out);
+  /* keep the rise animation working alongside hover transitions */
+  will-change: transform, filter;
+}
+.hero__title-line--top .hero__title-word::after {
+  /* Colorful overlay that fades + shimmers in on hover */
+  content: "GUESSWHAT";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    var(--accent-3) 0%,
+    var(--accent) 35%,
+    var(--accent-2) 55%,
+    var(--accent) 75%,
+    var(--accent-3) 100%
+  );
+  background-size: 220% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0;
+  transition: opacity 0.45s var(--ease-out), background-position 1.4s var(--ease-out);
+  pointer-events: none;
+}
+.hero__title-line--top:hover .hero__title-word {
+  transform: scale(1.015);
+  filter: drop-shadow(0 12px 28px color-mix(in srgb, var(--accent) 45%, transparent));
+}
+.hero__title-line--top:hover .hero__title-word::after {
+  opacity: 1;
+  background-position: 0% 0;
+}
+
 @keyframes rise {
   0%   { transform: translateY(110%); }
   100% { transform: translateY(0); }
@@ -322,17 +497,20 @@ body::before {
 
 .hero__sub {
   max-width: 540px;
-  margin: 0 auto;
+  margin: 0;
   font-size: clamp(15px, 1.2vw, 17px);
   line-height: 1.6;
   color: var(--fg-dim);
   opacity: 0;
   animation: fadeUp 1s var(--ease-out) 0.9s forwards;
 }
+@media (max-width: 900px) {
+  .hero__sub { margin: 0 auto; }
+}
 
 .hero__scroll {
   position: absolute;
-  bottom: -40px;
+  bottom: 32px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -370,7 +548,7 @@ body::before {
 /* ===== Section heading ===== */
 .section-head {
   max-width: 1200px;
-  margin: 0 auto 80px;
+  margin: 0 auto 48px;
   padding: 0 40px;
 }
 .section-head__index {
@@ -398,42 +576,113 @@ body::before {
 .work {
   position: relative;
   z-index: 2;
-  padding: 160px 0 120px;
+  /* small top space; the heavy lifting happens in .project-stage */
+  padding: 40px 0 0;
 }
 
-.projects {
-  max-width: 1280px;
+/* ====== STACKING SLIDESHOW ======
+   Each .project-stage takes one full viewport.
+   Inside it, the .project--card is sticky, so as the user scrolls,
+   the next stage's card slides up over the previous one. */
+.projects--stack {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+.project-stage {
+  /* Each stage owns a slice of scroll "budget". This value controls
+     how much you have to scroll between cards: smaller = tighter,
+     larger = more breathing room. 55vh gives each card a bit more
+     than half a screen — cards are clearly separated but the rhythm
+     still feels brisk. */
+  height: 55vh;
+  position: relative;
+}
+/* Last stage gets a bit of trailing room so the final card has time
+   to settle before the About section comes in. */
+.project-stage:last-child { height: 85vh; }
+
+.project--card {
+  position: sticky;
+  top: 110px;            /* clears the fixed nav */
   margin: 0 auto;
-  padding: 0 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 160px;
+  width: min(1180px, 92vw);
+  /* Internally driven height: hugs its content but caps at ~70vh */
+  min-height: 460px;
+  max-height: 72vh;
+
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 48px;
+  align-items: center;
+  padding: 40px clamp(24px, 3.5vw, 56px);
+
+  border-radius: 24px;
+  /* translucent glass card so the particle background shows through */
+  background: var(--glass);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(22px) saturate(1.1);
+  -webkit-backdrop-filter: blur(22px) saturate(1.1);
+  box-shadow:
+    0 40px 100px -30px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+
+  /* enter animation handled by JS via .is-active */
+  opacity: 0.4;
+  transform: translateY(40px) scale(0.96);
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.7s var(--ease-out),
+    box-shadow 0.5s var(--ease);
+}
+.project--card.is-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.project--card.is-leaving {
+  /* gentle parallax fade for the previous card while the next one slides up */
+  opacity: 0.5;
+  transform: translateY(-30px) scale(0.97);
 }
 
-.project {
-  display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  gap: 80px;
-  align-items: center;
-  opacity: 0;
-  transform: translateY(60px);
-  transition: opacity 1.1s var(--ease-out), transform 1.1s var(--ease-out);
+/* tiny corner index badge */
+.project--card::before {
+  content: "0" attr(data-project-index);
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: var(--fg-mute);
 }
-.project.is-visible {
-  opacity: 1;
-  transform: translateY(0);
+
+/* mobile: stack vertically inside the card */
+@media (max-width: 900px) {
+  .project-stage { height: auto; min-height: auto; padding: 40px 0; }
+  .project--card {
+    position: relative;
+    top: 0;
+    max-height: none;
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 32px 22px;
+  }
 }
-.project--reverse { direction: rtl; }
-.project--reverse > * { direction: ltr; }
+
+/* The old .projects / .project / .project--reverse rules from the legacy
+   layout are no longer needed; their place is taken by .projects--stack
+   and .project--card above. */
 
 .project__media {
   position: relative;
   /* matches the natural aspect ratio of the artwork (~2:1) so almost nothing is cropped */
   aspect-ratio: 2 / 1;
   border-radius: var(--radius);
-  /* subtle warm-to-cool dark fill behind any letterbox area; blends better than pure black */
-  background:
-    linear-gradient(135deg, rgba(20, 18, 26, 0.85), rgba(10, 12, 18, 0.85));
+  /* subtle theme-aware fill behind any letterbox area */
+  background: var(--media-letterbox);
   border: 1px solid var(--line);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -445,12 +694,18 @@ body::before {
     0 0 0 1px rgba(255, 255, 255, 0.02) inset;
   will-change: transform;
 }
+/* When used inside a stacking project card, fill more vertical space */
+.project--card .project__media {
+  aspect-ratio: auto;
+  width: 100%;
+  height: clamp(220px, 42vh, 380px);
+}
 .project__media:hover {
-  border-color: rgba(201, 255, 90, 0.25);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
   box-shadow:
-    0 40px 100px -20px rgba(0, 0, 0, 0.7),
-    0 0 60px -10px rgba(201, 255, 90, 0.15),
-    0 0 0 1px rgba(201, 255, 90, 0.1) inset;
+    0 40px 100px -20px rgba(0, 0, 0, 0.5),
+    0 0 60px -10px color-mix(in srgb, var(--accent) 18%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent) inset;
 }
 
 .project__media-inner {
@@ -505,7 +760,7 @@ body::before {
   line-height: 1;
   letter-spacing: -0.02em;
   margin-bottom: 20px;
-  background: linear-gradient(180deg, #ffffff, #c6c6d0);
+  background: linear-gradient(180deg, var(--title-grad-from), var(--title-grad-to));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -552,7 +807,7 @@ body::before {
 }
 .project__link:hover {
   background: var(--accent);
-  color: #000;
+  color: var(--accent-ink);
   border-color: var(--accent);
   transform: translateY(-2px);
 }
@@ -560,16 +815,14 @@ body::before {
 .project__link:hover svg { transform: translate(2px, -2px); }
 
 @media (max-width: 900px) {
-  .projects { gap: 100px; }
-  .project,
-  .project--reverse { display: flex; flex-direction: column; gap: 32px; direction: ltr; }
+  /* nothing here — cards stack naturally on small screens */
 }
 
 /* ===== About ===== */
 .about {
   position: relative;
   z-index: 2;
-  padding: 160px 40px 60px;
+  padding: 80px 40px 60px;
 }
 .about__inner {
   max-width: 980px;
@@ -583,7 +836,7 @@ body::before {
   line-height: 1;
   letter-spacing: -0.03em;
   margin: 16px 0 32px;
-  background: linear-gradient(180deg, #ffffff, #9c9caa);
+  background: linear-gradient(180deg, var(--title-grad-from), var(--title-grad-to));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -611,12 +864,12 @@ body::before {
   font-weight: 500;
   border-radius: 100px;
   background: var(--accent);
-  color: #000;
+  color: var(--accent-ink);
   transition: all 0.4s var(--ease);
 }
 .about__cta:hover {
   transform: translateY(-3px);
-  box-shadow: 0 20px 40px -10px rgba(201, 255, 90, 0.4);
+  box-shadow: 0 20px 40px -10px color-mix(in srgb, var(--accent) 50%, transparent);
 }
 .about__cta svg { transition: transform 0.4s var(--ease); }
 .about__cta:hover svg { transform: translate(3px, -3px); }
@@ -640,3 +893,210 @@ body::before {
   letter-spacing: 0.02em;
 }
 .footer__row a:hover { color: var(--accent); }
+
+/* =========================================
+   THEME TOGGLE BUTTON
+   A pill-shaped switch with sun + moon icons.
+   Sits in the nav, smoothly animates the indicator.
+   ========================================= */
+.theme-toggle {
+  --pad: 4px;
+  --indicator: 26px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: var(--pad);
+  width: 64px;
+  height: 34px;
+  border-radius: 100px;
+  border: 1px solid var(--line);
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--fg-dim);
+  transition: border-color 0.3s var(--ease), background 0.3s var(--ease), color 0.3s var(--ease);
+  flex-shrink: 0;
+}
+.theme-toggle:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--fg);
+}
+.theme-toggle__track {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+}
+.theme-toggle__icon {
+  width: 14px;
+  height: 14px;
+  display: block;
+  flex-shrink: 0;
+  transition: opacity 0.3s var(--ease), transform 0.4s var(--ease);
+  z-index: 1;
+}
+.theme-toggle__icon--sun { opacity: 0.45; }
+.theme-toggle__icon--moon { opacity: 1; }
+
+:root[data-theme="light"] .theme-toggle__icon--sun { opacity: 1; }
+:root[data-theme="light"] .theme-toggle__icon--moon { opacity: 0.45; }
+
+.theme-toggle__indicator {
+  position: absolute;
+  top: var(--pad);
+  /* dark = right, light = left */
+  left: calc(100% - var(--indicator) - var(--pad));
+  width: var(--indicator);
+  height: var(--indicator);
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow:
+    0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent),
+    0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+  transition: left 0.45s var(--ease), background 0.4s var(--ease);
+  z-index: 0;
+}
+:root[data-theme="light"] .theme-toggle__indicator {
+  left: var(--pad);
+}
+
+@media (max-width: 768px) {
+  .theme-toggle { width: 58px; height: 30px; }
+  .theme-toggle { --indicator: 22px; }
+}
+
+/* When the theme is light, ease the cursor follower so it doesn't go invisible
+   over the bright media cards (mix-blend-mode: difference looks great either way) */
+
+/* Light-theme small fixes for elements that rely on dark assumptions */
+:root[data-theme="light"] .nav__logo-img {
+  background: transparent;
+  box-shadow: 0 0 0 1px var(--line), 0 4px 12px rgba(0,0,0,0.08);
+}
+:root[data-theme="light"] .hero__bg-grid { opacity: 0.35; }
+:root[data-theme="light"] .footer { border-top-color: var(--line); }
+
+/* Avoid jarring color flashes when theme is toggled */
+.nav, .hero, .work, .about, .footer, .project__media,
+.project__link, .project__tags span, .theme-toggle {
+  transition-property: background-color, border-color, color, box-shadow, background;
+  transition-duration: 0.45s;
+  transition-timing-function: var(--ease);
+}
+
+/* =========================================
+   HERO DICE EMBLEM (right side of hero)
+   A single, clean isometric die with a soft halo + dashed orbit.
+   ========================================= */
+:root {
+  /* Die face fills (violet family, no green) */
+  --die-top-1:    #b9b1ff;
+  --die-top-2:    #8b7cff;
+  --die-right-1:  #7261f0;
+  --die-right-2:  #4f3fcf;
+  --die-left-1:   #4a3cb8;
+  --die-left-2:   #2c247f;
+  --die-pip:      #ffffff;
+  --die-edge:     rgba(255, 255, 255, 0.55);
+  --die-ring:     rgba(139, 124, 255, 0.55);
+  --die-spark:    rgba(255, 255, 255, 0.65);
+  --die-halo-from: rgba(139, 124, 255, 0.30);
+  --die-halo-to:   rgba(139, 124, 255, 0);
+}
+:root[data-theme="light"] {
+  --die-top-1:    #c9c2ff;
+  --die-top-2:    #9c8eff;
+  --die-right-1:  #6e5cff;
+  --die-right-2:  #4a3cd0;
+  --die-left-1:   #3a2eb0;
+  --die-left-2:   #221c75;
+  --die-pip:      #ffffff;
+  --die-edge:     rgba(255, 255, 255, 0.7);
+  --die-ring:     rgba(90, 77, 255, 0.45);
+  --die-spark:    rgba(90, 77, 255, 0.55);
+  --die-halo-from: rgba(90, 77, 255, 0.22);
+  --die-halo-to:   rgba(90, 77, 255, 0);
+}
+
+.hero__art { perspective: 1100px; }
+
+.hero__dice {
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 30px 60px rgba(34, 28, 110, 0.45));
+  /* whole emblem gently floats */
+  animation: heroFloat 7s ease-in-out infinite;
+  /* parallax tilt driven by JS (--rx, --ry) */
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.4s var(--ease-out);
+  transform-style: preserve-3d;
+}
+
+.hero__dice-halo {
+  filter: blur(2px);
+  animation: haloPulse 5s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.hero__dice-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ringSpin 30s linear infinite;
+  opacity: 0.7;
+}
+
+/* the cube itself bobs inside the SVG for extra life */
+.hero__dice-cube {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cubeBob 6s ease-in-out infinite;
+}
+
+/* tiny floating particles around the die */
+.hero__spark {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.hero__spark--a { animation: sparkFloat 4.2s ease-in-out infinite;       }
+.hero__spark--b { animation: sparkFloat 5.1s ease-in-out infinite -1.2s; }
+.hero__spark--c { animation: sparkFloat 4.7s ease-in-out infinite -2.4s; }
+.hero__spark--d { animation: sparkFloat 5.5s ease-in-out infinite -3.0s; }
+
+@keyframes heroFloat {
+  0%, 100% { transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(0); }
+  50%      { transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-10px); }
+}
+@keyframes haloPulse {
+  0%, 100% { opacity: 0.65; transform: scale(1);    }
+  50%      { opacity: 1;    transform: scale(1.06); }
+}
+@keyframes ringSpin {
+  from { transform: rotate(0deg);   }
+  to   { transform: rotate(360deg); }
+}
+@keyframes cubeBob {
+  0%, 100% { transform: translateY(0)    rotate(0deg); }
+  50%      { transform: translateY(-6px) rotate(-0.6deg); }
+}
+@keyframes sparkFloat {
+  0%, 100% { transform: translate(0, 0)   scale(1);   opacity: 0.55; }
+  50%      { transform: translate(0, -10px) scale(1.4); opacity: 1;    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__dice,
+  .hero__dice-halo,
+  .hero__dice-ring,
+  .hero__dice-cube,
+  .hero__spark { animation: none !important; }
+}
+
